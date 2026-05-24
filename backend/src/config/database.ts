@@ -17,14 +17,14 @@ export const prisma =
   });
 
 if (config.isDev) {
-  (prisma as PrismaClient & { $on: Function }).$on('query', (e: { query: string; duration: number }) => {
+  (prisma as any).$on('query', (e: { query: string; duration: number }) => {
     if (e.duration > 200) {
       logger.debug(`Slow query (${e.duration}ms): ${e.query.substring(0, 100)}`);
     }
   });
 }
 
-(prisma as PrismaClient & { $on: Function }).$on('error', (e: { message: string }) => {
+(prisma as any).$on('error', (e: { message: string }) => {
   logger.error('Prisma error:', e.message);
 });
 
