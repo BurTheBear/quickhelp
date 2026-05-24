@@ -19,7 +19,7 @@ export const notificationService = {
         type: input.type,
         title: input.title,
         body: input.body,
-        data: input.data ?? {},
+        data: (input.data ?? {}) as any,
       },
     });
 

@@ -30,13 +30,13 @@ interface AuthResult extends AuthTokens {
 const SALT_ROUNDS = 12;
 
 function generateTokens(userId: string, email: string, role: UserRole): AuthTokens {
-  const accessToken = jwt.sign(
+  const accessToken = (jwt.sign as Function)(
     { sub: userId, email, role },
     config.JWT_SECRET,
     { expiresIn: config.JWT_EXPIRES_IN }
   );
 
-  const refreshToken = jwt.sign(
+  const refreshToken = (jwt.sign as Function)(
     { sub: userId, type: 'refresh', jti: uuidv4() },
     config.JWT_REFRESH_SECRET,
     { expiresIn: config.JWT_REFRESH_EXPIRES_IN }
@@ -214,7 +214,7 @@ export const authService = {
       throw new AppError('User unavailable', 401);
     }
 
-    const accessToken = jwt.sign(
+    const accessToken = (jwt.sign as Function)(
       { sub: user.id, email: user.email, role: user.role },
       config.JWT_SECRET,
       { expiresIn: config.JWT_EXPIRES_IN }

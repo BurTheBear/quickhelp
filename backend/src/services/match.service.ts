@@ -124,7 +124,7 @@ export const matchService = {
     ]);
 
     // Award XP to volunteer
-    const xpBonus = match.request.urgency ? 0 : 0; // urgency loaded if needed
+    // xp bonus placeholder
     await gamificationService.awardXP(
       volunteerId,
       match.request.rewardPoints,
