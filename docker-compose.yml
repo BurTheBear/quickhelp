@@ -1,0 +1,100 @@
+version: '3.9'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgis/postgis:15-3.3-alpine
+    container_name: quickhelp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: quickhelp
+      POSTGRES_PASSWORD: quickhelp_dev_password
+      POSTGRES_DB: quickhelp_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/prisma/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U quickhelp']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching, sessions, and pub/sub
+  redis:
+    image: redis:7-alpine
+    container_name: quickhelp-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: quickhelp-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://quickhelp:quickhelp_dev_password@postgres:5432/quickhelp_db
+      REDIS_URL: redis://redis:6379
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+    env_file:
+      - ./backend/.env
+
+  # Admin Dashboard
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: quickhelp-admin
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '5173:80'
+    env_file:
+      - ./admin/.env
+
+  # pgAdmin for database management (dev only)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: quickhelp-pgadmin
+    restart: unless-stopped
+    profiles: ['dev-tools']
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@quickhelp.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  default:
+    name: quickhelp-network

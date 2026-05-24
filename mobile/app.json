@@ -1,0 +1,89 @@
+{
+  "expo": {
+    "name": "QuickHelp",
+    "slug": "quickhelp",
+    "version": "1.0.0",
+    "sdkVersion": "54.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "quickhelp",
+    "userInterfaceStyle": "automatic",
+    "description": "QuickHelp connects people who need everyday assistance with nearby volunteers. Post a request, find a helper, earn XP, and build a stronger community — one small act of kindness at a time.",
+    "primaryColor": "#A0673A",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D0B0A"
+    },
+    "notification": {
+      "icon": "./assets/images/icon.png",
+      "color": "#A0673A",
+      "androidMode": "default",
+      "androidCollapsedTitle": "#{unread_notifications} new notifications"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.quickhelp.mobile",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "QuickHelp uses your location to find help requests and volunteers near you.",
+        "NSLocationAlwaysUsageDescription": "QuickHelp uses your location to find help requests and volunteers near you.",
+        "NSCameraUsageDescription": "QuickHelp needs camera access to let you upload photos for your help requests.",
+        "NSPhotoLibraryUsageDescription": "QuickHelp needs photo library access to let you add images to your help requests.",
+        "NSMicrophoneUsageDescription": "QuickHelp needs microphone access for voice messages.",
+        "NSUserNotificationsUsageDescription": "QuickHelp sends notifications about your tasks, matches, and messages."
+      },
+      "config": {
+        "googleMapsApiKey": "YOUR_GOOGLE_MAPS_IOS_KEY"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#A0673A"
+      },
+      "package": "app.quickhelp.mobile",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.VIBRATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "YOUR_GOOGLE_MAPS_ANDROID_KEY"
+        }
+      }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#A0673A",
+          "sounds": [],
+          "mode": "production"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "QuickHelp uses your location to find nearby help requests and volunteers."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "quickhelp-app"
+      }
+    },
+    "owner": "quickhelp",
+    "privacy": "public",
+    "category": "social",
+    "platforms": ["ios", "android"]
+  }
+}
