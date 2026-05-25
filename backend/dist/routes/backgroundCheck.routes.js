@@ -10,6 +10,14 @@ exports.backgroundCheckRouter = (0, express_1.Router)();
 exports.backgroundCheckRouter.get('/status', auth_js_1.authenticate, backgroundCheck_controller_js_1.backgroundCheckController.getStatus);
 /** Submits personal info to Sterling and starts the background check. */
 exports.backgroundCheckRouter.post('/initiate', auth_js_1.authenticate, backgroundCheck_controller_js_1.backgroundCheckController.initiate);
+// ─── Dev simulator (blocked in production) ───────────────────────────────────
+/**
+ * POST /background-check/dev/simulate?result=clear|consider
+ * Instantly marks the authenticated user's check as CLEAR or CONSIDER
+ * and fires the push notification — great for testing the full flow.
+ * Returns 404 in production.
+ */
+exports.backgroundCheckRouter.post('/dev/simulate', auth_js_1.authenticate, backgroundCheck_controller_js_1.backgroundCheckController.devSimulate);
 // ─── Admin routes ─────────────────────────────────────────────────────────────
 /** Paginated list of all background checks (admin only). */
 exports.backgroundCheckRouter.get('/admin/list', auth_js_1.authenticate, backgroundCheck_controller_js_1.backgroundCheckController.adminList);

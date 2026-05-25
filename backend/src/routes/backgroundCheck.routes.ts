@@ -12,6 +12,16 @@ backgroundCheckRouter.get('/status', authenticate, backgroundCheckController.get
 /** Submits personal info to Sterling and starts the background check. */
 backgroundCheckRouter.post('/initiate', authenticate, backgroundCheckController.initiate);
 
+// ─── Dev simulator (blocked in production) ───────────────────────────────────
+
+/**
+ * POST /background-check/dev/simulate?result=clear|consider
+ * Instantly marks the authenticated user's check as CLEAR or CONSIDER
+ * and fires the push notification — great for testing the full flow.
+ * Returns 404 in production.
+ */
+backgroundCheckRouter.post('/dev/simulate', authenticate, backgroundCheckController.devSimulate);
+
 // ─── Admin routes ─────────────────────────────────────────────────────────────
 
 /** Paginated list of all background checks (admin only). */

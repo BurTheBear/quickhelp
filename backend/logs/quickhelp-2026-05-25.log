@@ -32,3 +32,25 @@
 {"level":"info","message":"🚀 QuickHelp API running on port 4000 [development]","timestamp":"2026-05-25T19:49:07.330Z"}
 {"level":"info","message":"📡 WebSocket server initialized","timestamp":"2026-05-25T19:49:07.330Z"}
 {"level":"info","message":"🔗 API: http://localhost:4000/api/v1","timestamp":"2026-05-25T19:49:07.330Z"}
+{"level":"info","message":"SIGTERM received — shutting down gracefully","timestamp":"2026-05-25T19:57:31.999Z"}
+{"level":"info","message":"Database disconnected","timestamp":"2026-05-25T19:57:32.009Z"}
+{"level":"info","message":"Server closed","timestamp":"2026-05-25T19:57:32.013Z"}
+{"level":"info","message":"Socket.io initialized","timestamp":"2026-05-25T19:57:32.883Z"}
+{"level":"info","message":"Database connected","timestamp":"2026-05-25T19:57:33.435Z"}
+{"level":"info","message":"Redis connected","timestamp":"2026-05-25T19:57:33.449Z"}
+{"level":"info","message":"Redis connected ✅","timestamp":"2026-05-25T19:57:33.456Z"}
+{"codePrefix":"app","errorInfo":{"code":"app/invalid-credential","message":"Failed to parse private key: Error: Invalid PEM formatted message."},"level":"error","message":"Failed to initialize Firebase: Failed to parse private key: Error: Invalid PEM formatted message.","stack":"Error: Failed to parse private key: Error: Invalid PEM formatted message.\n    at new ServiceAccount (/Users/bur/quickhelp/backend/node_modules/firebase-admin/lib/app/credential-internal.js:153:19)\n    at new ServiceAccountCredential (/Users/bur/quickhelp/backend/node_modules/firebase-admin/lib/app/credential-internal.js:70:15)\n    at Object.cert (/Users/bur/quickhelp/backend/node_modules/firebase-admin/lib/app/credential-factory.js:103:54)\n    at initializeFirebase (/Users/bur/quickhelp/backend/src/config/firebase.ts:17:36)\n    at start (/Users/bur/quickhelp/backend/src/index.ts:108:5)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)","timestamp":"2026-05-25T19:57:33.496Z"}
+{"level":"info","message":"🚀 QuickHelp API running on port 4000 [development]","timestamp":"2026-05-25T19:57:33.498Z"}
+{"level":"info","message":"📡 WebSocket server initialized","timestamp":"2026-05-25T19:57:33.498Z"}
+{"level":"info","message":"🔗 API: http://localhost:4000/api/v1","timestamp":"2026-05-25T19:57:33.498Z"}
+{"level":"info","message":"SIGTERM received — shutting down gracefully","timestamp":"2026-05-25T19:57:36.976Z"}
+{"level":"info","message":"Database disconnected","timestamp":"2026-05-25T19:57:36.990Z"}
+{"level":"info","message":"Server closed","timestamp":"2026-05-25T19:57:36.991Z"}
+{"level":"info","message":"Socket.io initialized","timestamp":"2026-05-25T19:57:37.573Z"}
+{"level":"info","message":"Database connected","timestamp":"2026-05-25T19:57:37.603Z"}
+{"level":"info","message":"Redis connected","timestamp":"2026-05-25T19:57:37.612Z"}
+{"level":"info","message":"Redis connected ✅","timestamp":"2026-05-25T19:57:37.619Z"}
+{"codePrefix":"app","errorInfo":{"code":"app/invalid-credential","message":"Failed to parse private key: Error: Invalid PEM formatted message."},"level":"error","message":"Failed to initialize Firebase: Failed to parse private key: Error: Invalid PEM formatted message.","stack":"Error: Failed to parse private key: Error: Invalid PEM formatted message.\n    at new ServiceAccount (/Users/bur/quickhelp/backend/node_modules/firebase-admin/lib/app/credential-internal.js:153:19)\n    at new ServiceAccountCredential (/Users/bur/quickhelp/backend/node_modules/firebase-admin/lib/app/credential-internal.js:70:15)\n    at Object.cert (/Users/bur/quickhelp/backend/node_modules/firebase-admin/lib/app/credential-factory.js:103:54)\n    at initializeFirebase (/Users/bur/quickhelp/backend/src/config/firebase.ts:17:36)\n    at start (/Users/bur/quickhelp/backend/src/index.ts:108:5)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)","timestamp":"2026-05-25T19:57:37.641Z"}
+{"level":"info","message":"🚀 QuickHelp API running on port 4000 [development]","timestamp":"2026-05-25T19:57:37.642Z"}
+{"level":"info","message":"📡 WebSocket server initialized","timestamp":"2026-05-25T19:57:37.648Z"}
+{"level":"info","message":"🔗 API: http://localhost:4000/api/v1","timestamp":"2026-05-25T19:57:37.648Z"}

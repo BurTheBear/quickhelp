@@ -297,6 +297,87 @@ export const backgroundCheckController = {
   },
 
   /**
+   * POST /background-check/dev/simulate  (development only — blocked in production)
+   * Instantly completes the authenticated user's background check with a fake result.
+   * Use ?result=clear (default) or ?result=consider to test both outcomes.
+   */
+  async devSimulate(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      // Hard block in production — this endpoint must NEVER run in prod
+      if (process.env.NODE_ENV === 'production') {
+        res.status(404).json({ success: false, error: 'Not found' });
+        return;
+      }
+
+      if (!req.user) throw new AppError('Not authenticated', 401);
+      const userId = req.user.id;
+
+      const result = (req.query.result as string ?? 'clear').toLowerCase();
+      if (!['clear', 'consider'].includes(result)) {
+        throw new AppError('result must be "clear" or "consider"', 400);
+      }
+
+      const status = result === 'clear' ? 'CLEAR' : 'CONSIDER';
+      const now    = new Date();
+
+      // Upsert so it works even if the user never filled the form
+      const check = await prisma.backgroundCheck.upsert({
+        where:  { userId },
+        create: {
+          userId,
+          status,
+          firstName:   'Test',
+          lastName:    'User',
+          initiatedAt: now,
+          completedAt: now,
+          expiresAt:   status === 'CLEAR'
+            ? new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000)
+            : null,
+          rawResult: { simulated: true, result } as any,
+        },
+        update: {
+          status,
+          completedAt: now,
+          expiresAt:   status === 'CLEAR'
+            ? new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000)
+            : null,
+          rawResult: { simulated: true, result } as any,
+        },
+      });
+
+      // Fire the real notification so the push flow is tested too
+      if (status === 'CLEAR') {
+        await notificationService.create(userId, {
+          type:  'BACKGROUND_CHECK_APPROVED',
+          title: '✅ Background Check Approved! (Simulated)',
+          body:  'Your simulated background check passed. You can now accept volunteer requests.',
+          data:  { checkId: check.id, simulated: true },
+        });
+      } else {
+        await notificationService.create(userId, {
+          type:  'BACKGROUND_CHECK_REJECTED',
+          title: 'Background Check Update (Simulated)',
+          body:  'Your simulated background check requires additional review.',
+          data:  { checkId: check.id, simulated: true },
+        });
+      }
+
+      logger.info(`[DEV] Background check simulated for user ${userId} → ${status}`);
+
+      res.json({
+        success: true,
+        data: {
+          id:      check.id,
+          status,
+          message: `Background check simulated as ${status}. Push notification sent.`,
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
    * PATCH /background-check/admin/:userId/override  (admin only)
    * Manually approve or reject a background check (e.g. for manual review results).
    */

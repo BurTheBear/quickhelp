@@ -23,6 +23,12 @@ export declare const backgroundCheckController: {
      */
     adminList(req: Request, res: Response, next: NextFunction): Promise<void>;
     /**
+     * POST /background-check/dev/simulate  (development only — blocked in production)
+     * Instantly completes the authenticated user's background check with a fake result.
+     * Use ?result=clear (default) or ?result=consider to test both outcomes.
+     */
+    devSimulate(req: Request, res: Response, next: NextFunction): Promise<void>;
+    /**
      * PATCH /background-check/admin/:userId/override  (admin only)
      * Manually approve or reject a background check (e.g. for manual review results).
      */

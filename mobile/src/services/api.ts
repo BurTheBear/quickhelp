@@ -176,8 +176,8 @@ export const backgroundCheckAPI = {
   getStatus: () => api.get('/background-check/status'),
 
   /**
-   * Submit personal info to start a Sterling background check.
-   * SSN is optional; if provided it is transmitted directly to Sterling
+   * Submit personal info to start a background check.
+   * SSN is optional; if provided it is transmitted directly to the provider
    * and never stored in QuickHelp's database.
    */
   initiate: (data: {
@@ -188,6 +188,13 @@ export const backgroundCheckAPI = {
     zipCode?:    string;
     phone?:      string;
   }) => api.post('/background-check/initiate', data),
+
+  /**
+   * DEV ONLY — instantly completes the check with a fake result.
+   * The backend blocks this in production (returns 404).
+   */
+  devSimulate: (result: 'clear' | 'consider') =>
+    api.post(`/background-check/dev/simulate?result=${result}`),
 };
 
 export const socialAPI = {

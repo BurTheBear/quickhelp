@@ -170,7 +170,21 @@ export default function BackgroundCheckScreen() {
 
         {step === 'intro'   && <IntroStep    styles={styles} colors={colors} onContinue={() => setStep('form')} onBack={() => navigation.goBack()} />}
         {step === 'form'    && <FormStep     styles={styles} colors={colors} form={form} loading={loading} onUpdate={updateField} onDobChange={handleDobChange} onSsnChange={handleSsnChange} onSubmit={handleSubmit} />}
-        {step === 'pending' && <PendingStep  styles={styles} colors={colors} onDone={() => navigation.goBack()} />}
+        {step === 'pending' && (
+          <PendingStep
+            styles={styles}
+            colors={colors}
+            onDone={() => navigation.goBack()}
+            onSimulate={async (result: 'clear' | 'consider') => {
+              try {
+                await backgroundCheckAPI.devSimulate(result);
+                setStep(result === 'clear' ? 'clear' : 'consider');
+              } catch (e: any) {
+                Alert.alert('Simulator error', e.response?.data?.error ?? 'Failed');
+              }
+            }}
+          />
+        )}
         {step === 'clear'   && <ClearStep    styles={styles} colors={colors} onDone={() => navigation.goBack()} />}
         {step === 'consider'&& <ConsiderStep styles={styles} colors={colors} onDone={() => navigation.goBack()} />}
 
@@ -346,7 +360,18 @@ function FormStep({ styles, colors, form, loading, onUpdate, onDobChange, onSsnC
 
 // ─── Step: Pending ────────────────────────────────────────────────────────────
 
-function PendingStep({ styles, colors, onDone }: any) {
+function PendingStep({ styles, colors, onDone, onSimulate }: any) {
+  const [simLoading, setSimLoading] = useState(false);
+
+  const simulate = async (result: 'clear' | 'consider') => {
+    setSimLoading(true);
+    try {
+      await onSimulate(result);
+    } finally {
+      setSimLoading(false);
+    }
+  };
+
   return (
     <View style={[styles.stepContent, { alignItems: 'center', justifyContent: 'center', flex: 1 }]}>
       <View style={styles.iconCircle}>
@@ -354,22 +379,49 @@ function PendingStep({ styles, colors, onDone }: any) {
       </View>
       <Text style={styles.stepTitle}>Check Submitted!</Text>
       <Text style={[styles.stepSubtitle, { textAlign: 'center' }]}>
-        Sterling is processing your background check. This typically takes{' '}
+        Your background check is being processed. This typically takes{' '}
         <Text style={{ fontWeight: '700', color: colors.primary }}>1–3 business days</Text>.
       </Text>
       <Text style={[styles.stepSubtitle, { textAlign: 'center', marginTop: spacing.sm }]}>
-        You'll receive a push notification as soon as your results are ready. No action needed on your part.
+        You'll receive a push notification as soon as your results are ready.
       </Text>
 
       <View style={[styles.infoCard, { width: '100%', marginTop: spacing.xl }]}>
-        <InfoRow emoji="📱" title="Push Notification" body="We'll alert you the moment Sterling responds." colors={colors} />
-        <InfoRow emoji="📧" title="Email Confirmation" body="Sterling will also send a confirmation to your registered email." colors={colors} />
+        <InfoRow emoji="📱" title="Push Notification" body="We'll alert you the moment results are ready." colors={colors} />
+        <InfoRow emoji="📧" title="Email Confirmation" body="A confirmation will be sent to your registered email." colors={colors} />
         <InfoRow emoji="🔒" title="Data Security" body="All data is encrypted in transit and at rest." colors={colors} />
       </View>
 
       <TouchableOpacity style={[styles.btn, styles.btnPrimary, { marginTop: spacing.xl }]} onPress={onDone}>
         <Text style={[styles.btnText, { color: '#fff' }]}>Back to App</Text>
       </TouchableOpacity>
+
+      {/* ── DEV ONLY simulator ── only shows in Expo dev builds, never in production */}
+      {__DEV__ && (
+        <View style={styles.devPanel}>
+          <Text style={styles.devLabel}>🛠 DEV SIMULATOR — not visible in production</Text>
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+            <TouchableOpacity
+              style={[styles.devBtn, { backgroundColor: '#22c55e' }]}
+              onPress={() => simulate('clear')}
+              disabled={simLoading}
+            >
+              {simLoading ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={styles.devBtnText}>✅ Simulate CLEAR</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.devBtn, { backgroundColor: '#f59e0b' }]}
+              onPress={() => simulate('consider')}
+              disabled={simLoading}
+            >
+              <Text style={styles.devBtnText}>⚠️ Simulate CONSIDER</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -583,6 +635,34 @@ function makeStyles(colors: any) {
     legalLinkText: {
       fontSize: 13,
       color:    colors.primary,
+    },
+
+    // Dev simulator panel
+    devPanel: {
+      marginTop:       spacing.xl,
+      width:           '100%',
+      backgroundColor: '#1e1e1e',
+      borderRadius:    radius.md,
+      padding:         spacing.md,
+      borderWidth:     1,
+      borderColor:     '#333',
+    },
+    devLabel: {
+      fontSize:   11,
+      color:      '#888',
+      fontWeight: '600',
+      textAlign:  'center',
+    },
+    devBtn: {
+      flex:            1,
+      paddingVertical: spacing.sm,
+      borderRadius:    radius.md,
+      alignItems:      'center',
+    },
+    devBtnText: {
+      fontSize:   13,
+      fontWeight: '700',
+      color:      '#fff',
     },
   });
 }
