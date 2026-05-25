@@ -5,6 +5,34 @@ import { AppError } from '../middleware/errorHandler.js';
 
 export const matchService = {
   async acceptRequest(requestId: string, volunteerId: string) {
+    // ── Background check gate ─────────────────────────────────────────────────
+    // A volunteer must have a cleared (CLEAR) background check before they can
+    // accept any help request. Expired checks (expiresAt < now) are also blocked.
+    const bgCheck = await prisma.backgroundCheck.findUnique({
+      where:  { userId: volunteerId },
+      select: { status: true, expiresAt: true },
+    });
+
+    const isCleared =
+      bgCheck?.status === 'CLEAR' &&
+      (bgCheck.expiresAt === null || bgCheck.expiresAt > new Date());
+
+    if (!isCleared) {
+      const statusMsg = !bgCheck
+        ? 'not_started'
+        : bgCheck.status === 'CLEAR' && bgCheck.expiresAt && bgCheck.expiresAt <= new Date()
+          ? 'expired'
+          : bgCheck.status.toLowerCase();
+
+      throw new AppError(
+        'A cleared background check is required to volunteer.',
+        403,
+        true,
+        { requiresBackgroundCheck: true, checkStatus: statusMsg }
+      );
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     // Verify request is still open
     const request = await prisma.helpRequest.findFirst({
       where: { id: requestId, status: 'OPEN', deletedAt: null },

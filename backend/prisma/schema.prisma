@@ -81,7 +81,20 @@ enum NotificationType {
   NEW_FOLLOWER
   POST_LIKED
   POST_COMMENTED
+  BACKGROUND_CHECK_APPROVED
+  BACKGROUND_CHECK_REJECTED
   SYSTEM
+}
+
+enum BackgroundCheckStatus {
+  NOT_STARTED
+  PENDING
+  IN_PROGRESS
+  CLEAR
+  CONSIDER
+  DISPUTE
+  CANCELLED
+  FAILED
 }
 
 enum PostVisibility {
@@ -158,6 +171,7 @@ model User {
   postComments      PostComment[]
   following         Follow[]              @relation("Follower")
   followers         Follow[]              @relation("Following")
+  backgroundCheck   BackgroundCheck?
 
   @@index([email])
   @@index([firebaseUid])
@@ -661,4 +675,39 @@ model PostComment {
 
   @@index([postId, createdAt])
   @@map("post_comments")
+}
+
+// ─── BACKGROUND CHECKS ───────────────────────────────────────────────────────
+
+model BackgroundCheck {
+  id               String                @id @default(cuid())
+  userId           String                @unique @map("user_id")
+  status           BackgroundCheckStatus @default(NOT_STARTED)
+  sterlingOrderId  String?               @unique @map("sterling_order_id")
+  sterlingReportId String?               @map("sterling_report_id")
+
+  // Minimal PII stored — full data sent directly to Sterling
+  firstName        String?               @map("first_name")
+  lastName         String?               @map("last_name")
+  dateOfBirth      String?               @map("date_of_birth") // YYYY-MM-DD
+  zipCode          String?               @map("zip_code")
+  // SSN NOT stored — only used in transit to Sterling
+
+  // Lifecycle
+  initiatedAt      DateTime?             @map("initiated_at")
+  completedAt      DateTime?             @map("completed_at")
+  expiresAt        DateTime?             @map("expires_at")   // checks valid for 1 year
+
+  // Audit trail
+  rawResult        Json?                 @map("raw_result")   // Sterling webhook payload
+  adminNotes       String?               @map("admin_notes")  @db.Text
+
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt      @map("updated_at")
+
+  user             User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([sterlingOrderId])
+  @@map("background_checks")
 }

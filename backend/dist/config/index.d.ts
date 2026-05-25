@@ -1,0 +1,30 @@
+export declare const config: {
+    readonly isDev: boolean;
+    readonly isProd: boolean;
+    readonly isTest: boolean;
+    readonly corsOrigins: string[];
+    readonly NODE_ENV: "development" | "production" | "test";
+    readonly PORT: number;
+    readonly API_VERSION: string;
+    readonly DATABASE_URL: string;
+    readonly REDIS_URL: string;
+    readonly JWT_SECRET: string;
+    readonly JWT_REFRESH_SECRET: string;
+    readonly JWT_EXPIRES_IN: string;
+    readonly JWT_REFRESH_EXPIRES_IN: string;
+    readonly AWS_REGION: string;
+    readonly AWS_S3_BUCKET: string;
+    readonly OPENAI_MODEL: string;
+    readonly RATE_LIMIT_WINDOW_MS: number;
+    readonly RATE_LIMIT_MAX_REQUESTS: number;
+    readonly CORS_ORIGINS: string;
+    readonly LOG_LEVEL: "error" | "warn" | "info" | "debug";
+    readonly FIREBASE_PROJECT_ID?: string | undefined;
+    readonly FIREBASE_PRIVATE_KEY?: string | undefined;
+    readonly FIREBASE_CLIENT_EMAIL?: string | undefined;
+    readonly AWS_ACCESS_KEY_ID?: string | undefined;
+    readonly AWS_SECRET_ACCESS_KEY?: string | undefined;
+    readonly GOOGLE_MAPS_API_KEY?: string | undefined;
+    readonly OPENAI_API_KEY?: string | undefined;
+};
+//# sourceMappingURL=index.d.ts.map

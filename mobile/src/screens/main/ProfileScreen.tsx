@@ -201,6 +201,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
 const MENU_ITEMS = [
   { icon: '📋', label: 'My Activity', screen: 'MyRequests' },
+  { icon: '🔍', label: 'Background Check', screen: 'BackgroundCheck' },
   { icon: '🔔', label: 'Notifications', screen: 'Notifications' },
   { icon: '⚙️', label: 'Settings', screen: 'Settings' },
 ];

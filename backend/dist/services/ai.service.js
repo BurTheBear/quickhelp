@@ -1,0 +1,143 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.aiService = void 0;
+const openai_1 = __importDefault(require("openai"));
+const index_js_1 = require("../config/index.js");
+const logger_js_1 = require("../utils/logger.js");
+let openaiClient = null;
+function getOpenAI() {
+    if (!openaiClient && index_js_1.config.OPENAI_API_KEY) {
+        openaiClient = new openai_1.default({ apiKey: index_js_1.config.OPENAI_API_KEY });
+    }
+    if (!openaiClient)
+        throw new Error('OpenAI not configured');
+    return openaiClient;
+}
+const CATEGORIES = [
+    'ELDERLY_ASSISTANCE', 'TUTORING', 'FOOD_DELIVERY',
+    'COMMUNITY_CLEANUP', 'PET_HELP', 'TECH_SUPPORT',
+    'TRANSPORTATION', 'EMERGENCY', 'OTHER',
+];
+exports.aiService = {
+    /**
+     * Moderate content for safety and auto-categorize.
+     * Returns safetyScore (0-1, higher = safer) and suggested category.
+     */
+    async moderateAndCategorize(title, description) {
+        if (!index_js_1.config.OPENAI_API_KEY) {
+            return { safetyScore: 1.0, category: 'OTHER' };
+        }
+        try {
+            const openai = getOpenAI();
+            const response = await openai.chat.completions.create({
+                model: index_js_1.config.OPENAI_MODEL,
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are a content moderation AI for a community volunteering app.
+Analyze help requests for safety and appropriateness.
+Respond ONLY with valid JSON in this exact format:
+{
+  "safetyScore": <float 0.0-1.0>,
+  "category": "<one of: ${CATEGORIES.join(', ')}>",
+  "flags": ["<list any concerns, empty array if none>"]
+}
+
+Safety score guide:
+- 1.0: Completely safe, genuine help request
+- 0.7-0.9: Safe with minor concerns
+- 0.4-0.6: Moderate concerns, needs human review
+- 0.1-0.3: Likely harmful or policy-violating
+- 0.0: Clear policy violation (scam, dangerous activity)`,
+                    },
+                    {
+                        role: 'user',
+                        content: `Title: ${title}\n\nDescription: ${description}`,
+                    },
+                ],
+                max_tokens: 200,
+                temperature: 0.1,
+            });
+            const content = response.choices[0]?.message?.content;
+            if (!content)
+                throw new Error('Empty AI response');
+            const parsed = JSON.parse(content);
+            return {
+                safetyScore: Math.max(0, Math.min(1, parsed.safetyScore)),
+                category: CATEGORIES.includes(parsed.category) ? parsed.category : 'OTHER',
+            };
+        }
+        catch (err) {
+            logger_js_1.logger.error('AI moderation failed:', err);
+            return { safetyScore: 0.8, category: 'OTHER' }; // Default safe, fail open
+        }
+    },
+    /**
+     * Generate volunteer match scores based on profile compatibility.
+     */
+    async rankVolunteers(request, volunteers) {
+        if (!index_js_1.config.OPENAI_API_KEY || volunteers.length === 0) {
+            // Fallback: simple scoring without AI
+            return volunteers.map((v) => ({
+                id: v.id,
+                score: (v.avgRating / 5) * 0.3 +
+                    (Math.min(v.tasksCompleted, 100) / 100) * 0.3 +
+                    (1 / (1 + v.distance)) * 0.4,
+            }));
+        }
+        try {
+            const openai = getOpenAI();
+            const response = await openai.chat.completions.create({
+                model: index_js_1.config.OPENAI_MODEL,
+                messages: [
+                    {
+                        role: 'system',
+                        content: `Score volunteer-request compatibility. Return JSON array of {id, score} pairs, score 0-1.
+Consider: skill match, experience, rating, proximity. Higher score = better match.`,
+                    },
+                    {
+                        role: 'user',
+                        content: JSON.stringify({ request, volunteers }),
+                    },
+                ],
+                max_tokens: 500,
+                temperature: 0.2,
+            });
+            const content = response.choices[0]?.message?.content;
+            if (!content)
+                throw new Error('Empty response');
+            return JSON.parse(content);
+        }
+        catch (err) {
+            logger_js_1.logger.error('AI ranking failed, using fallback:', err);
+            return volunteers.map((v) => ({
+                id: v.id,
+                score: (v.avgRating / 5) * 0.4 + (1 / (1 + v.distance)) * 0.6,
+            }));
+        }
+    },
+    /**
+     * Generate smart notification copy for nearby volunteer alerts.
+     */
+    async generateNotificationCopy(category, urgency, distance) {
+        const urgencyText = urgency === 'EMERGENCY' ? '🚨 URGENT' : urgency === 'HIGH' ? '⚡ High priority' : 'New';
+        const categoryEmoji = {
+            ELDERLY_ASSISTANCE: '👴',
+            TUTORING: '📚',
+            FOOD_DELIVERY: '🍕',
+            COMMUNITY_CLEANUP: '🌿',
+            PET_HELP: '🐾',
+            TECH_SUPPORT: '💻',
+            TRANSPORTATION: '🚗',
+            EMERGENCY: '🚨',
+        };
+        return {
+            title: `${urgencyText} help request nearby`,
+            body: `${categoryEmoji[category] ?? '🤝'} Someone needs help ${distance < 1 ? 'less than 1km' : `${distance.toFixed(1)}km`} away — can you assist?`,
+        };
+    },
+};
+//# sourceMappingURL=ai.service.js.map

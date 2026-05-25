@@ -71,6 +71,33 @@ export default function RequestDetailScreen() {
       await matchesAPI.accept(requestId);
       await load();
     } catch (e: any) {
+      const details = e.response?.data?.details;
+      // Background check gate: redirect to the BackgroundCheckScreen
+      if (e.response?.status === 403 && details?.requiresBackgroundCheck) {
+        const statusMsg: Record<string, string> = {
+          not_started: 'You need to complete a background check before volunteering.',
+          pending:     'Your background check is still being processed. Please check back soon.',
+          in_progress: 'Your background check is still being processed. Please check back soon.',
+          consider:    'Your background check requires additional review. Our team will contact you.',
+          expired:     'Your background check has expired. Please submit a new one.',
+          failed:      'There was an issue with your background check. Please re-submit.',
+        };
+        const msg = statusMsg[details.checkStatus ?? ''] ?? 'A background check is required to volunteer.';
+
+        Alert.alert(
+          '🔍 Background Check Required',
+          msg,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            ...(
+              ['not_started', 'expired', 'failed'].includes(details.checkStatus ?? '')
+                ? [{ text: 'Start Check', onPress: () => navigation.navigate('BackgroundCheck') }]
+                : []
+            ),
+          ]
+        );
+        return;
+      }
       Alert.alert('Error', e.response?.data?.error ?? 'Could not accept request');
     } finally {
       setActionLoading(false);

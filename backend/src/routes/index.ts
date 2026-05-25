@@ -9,6 +9,7 @@ import { adminRouter } from './admin.routes.js';
 import { leaderboardRouter } from './leaderboard.routes.js';
 import { groupRouter } from './group.routes.js';
 import socialRouter from './social.routes.js';
+import { backgroundCheckRouter } from './backgroundCheck.routes.js';
 
 export const router = Router();
 
@@ -22,3 +23,4 @@ router.use('/leaderboard', leaderboardRouter);
 router.use('/groups', groupRouter);
 router.use('/admin', adminRouter);
 router.use('/social', socialRouter);
+router.use('/background-check', backgroundCheckRouter);

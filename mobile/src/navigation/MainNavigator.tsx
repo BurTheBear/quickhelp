@@ -25,6 +25,7 @@ import NotificationsScreen from '../screens/main/NotificationsScreen';
 import TermsOfServiceScreen from '../screens/legal/TermsOfServiceScreen';
 import PrivacyPolicyScreen from '../screens/legal/PrivacyPolicyScreen';
 import ReportUserScreen from '../screens/main/ReportUserScreen';
+import BackgroundCheckScreen from '../screens/main/BackgroundCheckScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -156,6 +157,7 @@ export const MainNavigator: React.FC = () => {
         <Stack.Screen name="TermsOfService" component={TermsOfServiceScreen} options={{ presentation: 'card' }} />
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} options={{ presentation: 'card' }} />
         <Stack.Screen name="ReportUser" component={ReportUserScreen} options={{ presentation: 'card' }} />
+        <Stack.Screen name="BackgroundCheck" component={BackgroundCheckScreen} options={{ presentation: 'card' }} />
         <Stack.Screen name="Badges" component={PlaceholderScreen('Badges')} options={{ presentation: 'modal' }} />
       </Stack.Navigator>
     </NavigationContainer>

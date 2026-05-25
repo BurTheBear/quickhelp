@@ -1,0 +1,31 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.router = void 0;
+const express_1 = require("express");
+const auth_routes_js_1 = require("./auth.routes.js");
+const user_routes_js_1 = require("./user.routes.js");
+const request_routes_js_1 = require("./request.routes.js");
+const match_routes_js_1 = require("./match.routes.js");
+const chat_routes_js_1 = require("./chat.routes.js");
+const notification_routes_js_1 = require("./notification.routes.js");
+const admin_routes_js_1 = require("./admin.routes.js");
+const leaderboard_routes_js_1 = require("./leaderboard.routes.js");
+const group_routes_js_1 = require("./group.routes.js");
+const social_routes_js_1 = __importDefault(require("./social.routes.js"));
+const backgroundCheck_routes_js_1 = require("./backgroundCheck.routes.js");
+exports.router = (0, express_1.Router)();
+exports.router.use('/auth', auth_routes_js_1.authRouter);
+exports.router.use('/users', user_routes_js_1.userRouter);
+exports.router.use('/requests', request_routes_js_1.requestRouter);
+exports.router.use('/matches', match_routes_js_1.matchRouter);
+exports.router.use('/chats', chat_routes_js_1.chatRouter);
+exports.router.use('/notifications', notification_routes_js_1.notificationRouter);
+exports.router.use('/leaderboard', leaderboard_routes_js_1.leaderboardRouter);
+exports.router.use('/groups', group_routes_js_1.groupRouter);
+exports.router.use('/admin', admin_routes_js_1.adminRouter);
+exports.router.use('/social', social_routes_js_1.default);
+exports.router.use('/background-check', backgroundCheck_routes_js_1.backgroundCheckRouter);
+//# sourceMappingURL=index.js.map

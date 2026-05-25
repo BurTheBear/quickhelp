@@ -14,6 +14,11 @@
             "date": 1779598099607,
             "name": "logs/quickhelp-2026-05-24.log",
             "hash": "3a3bc8fbfb21c76fe6b51854291ebca8cb7dbefdabeefb01909803072094220c"
+        },
+        {
+            "date": 1779686437910,
+            "name": "logs/quickhelp-2026-05-25.log",
+            "hash": "7066e28b27036fae79ffb6d6d605bfe6e0d7f5363f028aa20637663898bf8011"
         }
     ],
     "hashType": "sha256"

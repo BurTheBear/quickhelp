@@ -171,6 +171,25 @@ export const leaderboardAPI = {
   getChallenges: () => api.get('/leaderboard/challenges'),
 };
 
+export const backgroundCheckAPI = {
+  /** Get the current user's background check status. */
+  getStatus: () => api.get('/background-check/status'),
+
+  /**
+   * Submit personal info to start a Sterling background check.
+   * SSN is optional; if provided it is transmitted directly to Sterling
+   * and never stored in QuickHelp's database.
+   */
+  initiate: (data: {
+    firstName:   string;
+    lastName:    string;
+    dateOfBirth: string;  // YYYY-MM-DD
+    ssn?:        string;
+    zipCode?:    string;
+    phone?:      string;
+  }) => api.post('/background-check/initiate', data),
+};
+
 export const socialAPI = {
   // Feed
   getPublicFeed: (page = 1) => api.get('/social/feed', { params: { page } }),
