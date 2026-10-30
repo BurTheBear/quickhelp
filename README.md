@@ -1,258 +1,52 @@
-# QuickHelp — Micro-Volunteering Platform
+# QuickHelp
 
-> Connect people who need small acts of help with willing volunteers in their community, within 5–30 minutes.
+QuickHelp is for small favors: carrying groceries up the stairs, a quick tech question, walking a dog once. Someone posts a request that takes 5 to 30 minutes, and a nearby volunteer picks it up. Volunteers earn XP, keep streaks and collect badges, so helping out feels a bit like a game.
 
-![QuickHelp Banner](docs/banner.png)
+<img src="docs/overview.jpg" alt="QuickHelp overview: mobile app, API with realtime, PostgreSQL and Redis, admin dashboard" width="720">
 
-## 🚀 Overview
-
-QuickHelp is a production-ready, mobile-first social platform that makes volunteering fast, easy, and addictive. Think "Uber for small acts of kindness" with social media gamification — every task completed builds real community impact.
-
-**Key differentiators:**
-- ⚡ Micro-tasks (5–30 min) — low commitment, high impact
-- 🎮 Gamification — XP, levels, streaks, leaderboards
-- 🤖 AI-powered matching & safety moderation
-- 📍 Hyperlocal — GPS-based nearby requests
-- 💬 Real-time chat & notifications
-
----
-
-## 🏗️ Architecture
+## What's in here
 
 ```
-quickhelp/
-├── backend/          # Node.js + Express + Prisma API
-├── mobile/           # React Native (Expo) mobile app
-├── admin/            # React admin dashboard
-├── shared/           # Shared TypeScript types & constants
-└── docs/             # Architecture docs, API specs
+mobile/    React Native app (Expo)
+backend/   Express + TypeScript API, Prisma, Socket.io
+admin/     React + Vite admin dashboard
+shared/    types shared between them
 ```
 
-### Tech Stack
+**The app** covers sign-up, posting a request with a location and photos, browsing requests near you on a map, accepting one, chatting with the other person in real time, and rating each other afterwards. There's also a social side: following people, a social feed with posts, and community groups.
 
-| Layer | Technology |
-|-------|-----------|
-| Mobile | React Native + Expo SDK 51 |
-| Backend | Node.js + Express + TypeScript |
-| Database | PostgreSQL + Prisma ORM |
-| Real-time | Socket.io |
-| Auth | Firebase Auth + JWT |
-| Push Notifications | Firebase Cloud Messaging |
-| Maps | Google Maps API + React Native Maps |
-| File Storage | AWS S3 |
-| AI Features | OpenAI GPT-4o |
-| Caching | Redis |
-| Admin UI | React + Vite + Tailwind CSS |
-| Deployment | Docker + AWS ECS / Railway |
+**The backend** is an Express API in TypeScript with PostgreSQL through Prisma (27 tables). Socket.io handles chat and live updates. Redis is used as a cache, and JWTs for auth, with rate limiting on the auth routes. Gamification is its own service: XP events, levels, streaks, badges, achievements and challenges. Requests go through an OpenAI moderation check before they're posted. Volunteers can be required to pass a background check through Sterling, and there's a simulator so this can be tested without paying for real checks.
 
----
+**The admin dashboard** shows users, requests and reports, plus charts of activity over time.
 
-## 📦 Quick Start
+## Running it locally
 
-### Prerequisites
-- Node.js 20+
-- Docker + Docker Compose
-- PostgreSQL 15+
-- Redis 7+
-- Firebase project
-- Google Maps API key
-- OpenAI API key
-
-### 1. Clone & Install
+You need Node 20+ and Docker.
 
 ```bash
-git clone https://github.com/yourorg/quickhelp.git
-cd quickhelp
+docker compose up -d postgres redis
 
-# Install all workspace dependencies
-npm install
-
-# Backend
-cd backend && npm install
-
-# Mobile
-cd ../mobile && npm install
-
-# Admin
-cd ../admin && npm install
-```
-
-### 2. Environment Variables
-
-```bash
-# Backend
-cp backend/.env.example backend/.env
-# Fill in your secrets (see backend/.env.example)
-
-# Mobile
-cp mobile/.env.example mobile/.env
-
-# Admin
-cp admin/.env.example admin/.env
-```
-
-### 3. Start with Docker
-
-```bash
-# From root
-docker-compose up -d postgres redis
-
-# Run migrations + seed
 cd backend
+cp .env.example .env          # fill in your own keys
+npm install
 npx prisma migrate dev
-npx ts-node src/seeds/seed.ts
+npm run seed                  # sample users and requests
+npm run dev                   # API on http://localhost:4000
 
-# Start backend
-npm run dev
+cd ../mobile
+npm install
+npx expo start                # press i for the iOS simulator
+
+cd ../admin
+npm install
+npm run dev                   # http://localhost:5173
 ```
 
-### 4. Run Mobile App
+Maps, push notifications, uploads and moderation need their own API keys (Google Maps, Firebase, S3, OpenAI). Without them the core request, match and chat flow still works locally.
 
-```bash
-cd mobile
-npx expo start
-# Press 'i' for iOS simulator, 'a' for Android
-```
+The backend deploys from `backend/Dockerfile`. I've been running it on Railway.
 
-### 5. Run Admin Dashboard
+## Notes
 
-```bash
-cd admin
-npm run dev
-# Open http://localhost:5173
-```
-
----
-
-## 🗄️ Database Schema
-
-See [docs/schema.md](docs/schema.md) for full ERD.
-
-Core entities:
-- **Users** — auth, profiles, skills, reputation
-- **HelpRequests** — tasks with location, category, urgency
-- **Matches** — volunteer assignments and status
-- **Messages** — real-time chat per request
-- **Gamification** — XP events, badges, achievements, streaks
-- **Reports** — safety moderation queue
-- **CommunityGroups** — local volunteer organizations
-
----
-
-## 🔌 API Reference
-
-Base URL: `https://api.quickhelp.app/v1`
-
-Full API docs: [docs/api.md](docs/api.md)
-
-Key endpoints:
-```
-POST /auth/signup
-POST /auth/login
-GET  /requests?lat=&lng=&radius=
-POST /requests
-POST /requests/:id/accept
-GET  /users/:id/profile
-POST /matches/:id/complete
-GET  /leaderboard
-WS   /socket.io  (real-time events)
-```
-
----
-
-## 🎮 Gamification System
-
-| Action | XP |
-|--------|-----|
-| Complete a task | +50–200 XP (based on difficulty) |
-| Receive 5-star rating | +25 XP bonus |
-| 7-day streak | +100 XP |
-| First task in category | +30 XP (Explorer badge) |
-| Help an elderly person | +75 XP |
-| Emergency task | +150 XP |
-
-**Levels:** 1 (Newcomer) → 10 (Community Legend)
-
----
-
-## 🛡️ Safety Features
-
-- **User verification** — ID badge system
-- **AI moderation** — GPT-4o screens all requests for harmful content
-- **Reporting system** — Users can report requests/users
-- **Emergency SOS** — One-tap emergency contact
-- **Rating system** — Bidirectional reviews after each task
-- **Background checks** — Integration hook for third-party providers
-
----
-
-## 🚀 Deployment
-
-See [docs/deployment.md](docs/deployment.md) for:
-- Docker production build
-- AWS ECS deployment
-- Railway one-click deploy
-- Environment variable reference
-- CI/CD pipeline (GitHub Actions)
-
----
-
-## 📱 App Store
-
-**Name:** QuickHelp — Community Tasks  
-**Subtitle:** Volunteer. Help. Level Up.  
-**Description:** See [docs/app-store.md](docs/app-store.md)
-
----
-
-## 💰 Monetization
-
-1. **QuickHelp Pro** ($4.99/mo) — Priority matching, profile boost, custom avatar frames
-2. **Business Listings** — Local businesses sponsor volunteer tasks
-3. **Nonprofit Partnerships** — White-label solution for organizations
-4. **Premium Challenges** — Branded corporate volunteering events
-5. **Data Insights** — Anonymized community impact reports for city governments
-
----
-
-## 🗺️ Roadmap
-
-**Q1 2026 — Beta Launch**
-- [ ] Core request/match flow
-- [ ] Real-time chat
-- [ ] Basic gamification
-- [ ] Maps & location
-
-**Q2 2026**
-- [ ] AI smart matching
-- [ ] Community Groups
-- [ ] Event volunteering mode
-- [ ] Background checks integration
-
-**Q3 2026**
-- [ ] Corporate volunteering portal
-- [ ] Impact certificates (blockchain)
-- [ ] Multi-city expansion tools
-- [ ] Analytics API for nonprofits
-
-**Q4 2026**
-- [ ] QuickHelp Pro subscription
-- [ ] International localization
-- [ ] Partner API & SDK
-- [ ] City government dashboards
-
----
-
-## 🤝 Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow.
-
----
-
-## 📄 License
-
-MIT License — see [LICENSE](LICENSE)
-
----
-
-*Built with ❤️ for communities everywhere.*
+- `docs/deployment.md` has deployment details, and `docs/app-store.md` has the store listing draft.
+- MIT license.
