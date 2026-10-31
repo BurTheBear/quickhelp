@@ -1,0 +1,10 @@
+node_modules/
+dist/
+logs/
+uploads/
+backend/.env
+admin/.env
+.DS_Store
+.watchman-cookie-*
+mobile/ios/Pods/
+mobile/.expo/
